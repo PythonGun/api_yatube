@@ -65,32 +65,3 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Group
-
-
-class FollowSerializer(serializers.ModelSerializer):
-    user = SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all(),
-        default=serializers.CurrentUserDefault()
-    )
-    following = SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all()
-    )
-
-    class Meta:
-        fields = ('user', 'following')
-        model = Follow
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'following'),
-                message='Такая подписка уже существует'
-            )
-        ]
-
-    def validate_following(self, value):
-        if value == self.context['request'].user:
-            raise serializers.ValidationError("На себя подписываться нельзя!")
-        return value
